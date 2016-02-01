@@ -1,17 +1,22 @@
 <html>
 <head>
 	<script>
-	var ipc = require('ipc');
+	var j = require('jscloak');
+	var utils = j.utils;
+
+	var pyipc = require('./start-service');
 	function sendPyMsg(m) {
-		ipc.send('pyMsg', m);
+		pyipc.send(m);
 	}
 
-	function onPyMsg(m) {
-		alert(m);
+	function onPyMsg(data) {
+		alert(data);
 	}
+	pyipc.init(onPyMsg);
+	//pyipc.send('Hello');
 
-	var msg = [ 'hello world!' ];
-	sendPyMsg(msg);
+
+	sendPyMsg('hello');
 	</script>
 </head>
 <body>

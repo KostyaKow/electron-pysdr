@@ -3,18 +3,8 @@ app.commandLine.appendSwitch('enable-smooth-scrolling', true);
 var BrowserWindow = require('browser-window');
 var mainWindow = null;
 
-
 var j = require('jscloak');
-var utils = j.utils;
-var sprintf = utils.sprintf;
-
-var log = (msg) => {
-   console.log('javscript:')
-   console.log(msg)
-};
-
-var pyipc = require('./start-service');
-var ipc = require('ipc');
+var sprintf = j.utils.sprintf;
 
 app.on('ready', function() {
    // Create the browser window.
@@ -48,17 +38,6 @@ app.on('ready', function() {
    // and load the index.html of the app.
 	var url = sprintf('file://%s/index.html', __dirname);
    mainWindow.loadURL(url);
-
-	function onData(data) {
-		wc.executeJavaScript(sprintf('onPyMsg(%s);', data));
-	}
-
-	pyipc.init(onData);
-
-	ipc.on('pyMsg', function(event, msg) {
-		pyipc.send(msg);
-	});
-	//ipc.send('Hello');
 
 
    // Open the DevTools.

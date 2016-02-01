@@ -4,9 +4,9 @@ from pycloak.events import Event
 from pycloak.threadutils import EzThread
 import json, sys, time, threading
 
-def console_log(msg):
-   sys.stderr.write('\npy: got msg from js: %s\n' % msg)
-   sys.stderr.flush()
+#def console_log(msg):
+#   sys.stderr.write('\npy: got msg from js: %s\n' % msg)
+#   sys.stderr.flush()
 
 class ElectronTalker:
    def __init__(self, msg_handler = None):
@@ -50,7 +50,9 @@ class ElectronTalker:
 e = ElectronTalker(lambda msg: console_log(msg))
 i = 0
 while i < 1000:
+	e.send_cmd('test', i)
 	time.sleep(0.1)
+	i+=1
 
 ##############
 

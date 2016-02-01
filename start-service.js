@@ -15,7 +15,7 @@ function init(on_data) {
    child = child_process.spawn(__dirname + '/py_stdcom.py')
    //child.stdin.write(data);
    child.stderr.on('data', function(data) {
-      log('js: got error from python:' + JSON.stringify(data));
+      log('js: got error from python:' + String(data));
    });
    child.stdout.on('data', function(data) {
       //document.write(data);
