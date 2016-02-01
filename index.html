@@ -1,0 +1,20 @@
+<html>
+<head>
+	<script>
+	var ipc = require('ipc');
+	function sendPyMsg(m) {
+		ipc.send('pyMsg', m);
+	}
+
+	function onPyMsg(m) {
+		alert(m);
+	}
+
+	var msg = [ 'hello world!' ];
+	sendPyMsg(msg);
+	</script>
+</head>
+<body>
+Hello
+</body>
+</html>
