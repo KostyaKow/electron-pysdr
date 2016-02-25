@@ -1,25 +1,94 @@
 <html>
 <head>
 	<script>
+		document.$ = $ = require('./jquery.min.js')
+	</script>
+	<script>
+
+
+	//coolest one: http://dygraphs.com/gallery/#g/plotter
+	//http://jsfiddle.net/api/post/jquery/1.4/
+	//http://dygraphs.com/gallery/#g/dynamic-update
+	//http://dygraphs.com/download.html
+	//http://dygraphs.com/options.html#Axis display
+
+	/*$(document).ready(function () {
+		var el = document.getElementById("div_g");
+		var data = {
+			rollPeriod: 7,
+			errorBars: true
+		};
+
+		new Dygraph(el, NoisyData, data);
+	);*/
+
 	var j = require('jscloak');
 	var utils = j.utils;
 
 	var pyipc = require('./start-service');
 	function sendPyMsg(m) {
-		pyipc.send(m);
+		var msg = {
+			'magic': 'gentoo_sicp_rms',
+			'message': m
+		};
+		pyipc.send(msg);
 	}
 
-	function onPyMsg(data) {
-		alert(data);
-	}
-	pyipc.init(onPyMsg);
+	var t = new Date();
+	var x = 0;
+
+	var plotData = [[t, 0, 0]];
+
+
 	//pyipc.send('Hello');
+	function onPyMsg(data) {
+		var action = data['action'];
+		radValues = data['value'];
 
+		//plotData = [[0, 0, 0]];
+		for (var i in radValues) {
+			var v = radValues[i];
+			/*if (v[0] != v[1])
+				console.log('Not equals: ' + v[0] + '    ' + v[1])
+			if (v[0] == v[1])
+				console.log('Equals'); */
+			update(v[0], v[1]);
+		}
+		draw();
+		x += 5;
+	}
 
-	sendPyMsg('hello');
+	function update(real, imag) {
+		t = new Date(t.getTime() + x);
+		x++;
+		plotData.push([t, real, imag]);
+	}
+	function draw() {
+		g.updateOptions( { 'file': plotData } );
+	}
+
+	$(document).ready(() => {
+		pyipc.init(onPyMsg);
+
+		var div = document.getElementById("div_g");
+		var dict = {
+			drawPoints: true,
+			showRoller: true,
+			//showRangeSelector: true,
+			valueRange: [-0.1, 0.1],
+			labels: ['Time', 'real', 'imag']
+		};
+
+		g = new Dygraph(div, plotData, dict);
+	});
+	//sendPyMsg('hello');
 	</script>
+
+	<script src="dygraph-combined.js"></script>
+
 </head>
 <body>
-Hello
+<div id="div_g" style='width:600px; height: 300px'></div>
+
 </body>
 </html>

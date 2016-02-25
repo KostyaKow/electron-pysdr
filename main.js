@@ -39,7 +39,7 @@ app.on('ready', function() {
 	var url = sprintf('file://%s/index.html', __dirname);
    mainWindow.loadURL(url);
 
-
+	debug = true;
    // Open the DevTools.
    if (debug)
       mainWindow.openDevTools();

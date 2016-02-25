@@ -4,9 +4,10 @@ from pycloak.events import Event
 from pycloak.threadutils import EzThread
 import json, sys, time, threading
 
-#def console_log(msg):
-#   sys.stderr.write('\npy: got msg from js: %s\n' % msg)
-#   sys.stderr.flush()
+def err(msg):
+   sys.stderr.write('\npy err: %s\n' % msg)
+   sys.stderr.flush()
+
 
 class ElectronTalker:
    def __init__(self, msg_handler = None):
@@ -36,7 +37,13 @@ class ElectronTalker:
    def send_json(self, data):
       data['magic'] = 'gentoo_sicp_rms'
       json_data = json.dumps(data)
-      sys.stdout.write("%s\n" % json.dumps(data))
+
+      if json_data.find('\n') != -1:
+         err('we have a newline')
+
+      #err(json_data)
+      #sys.stdout.flush()
+      sys.stdout.write("%s\n" % json_data)
       sys.stdout.flush()
 
    def send_cmd(self, action, value):
@@ -46,12 +53,45 @@ class ElectronTalker:
    def stop(self):
       self._stop = True
 
+import sys, os
+def set_stdout_buff_size(size):
+        sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', size)
+set_stdout_buff_size(1)
 
-e = ElectronTalker(lambda msg: console_log(msg))
+from rtlsdr import RtlSdr
+def get_sdr():
+	sdr = RtlSdr()
+
+	#configure device
+	#sdr.sample_rate = 2.048e6 	#Hz
+	#sdr.center_freq = 70e6		#Hz
+	#sdr.freq_correction = 60	# PPM
+	#sdr.gain = 'auto'
+	sdr.sample_rate = 200000
+	sdr.center_freq = 907 * 1000 * 1000
+	sdr.freq_correction = 60	# PPM
+	sdr.gain = 'auto'
+
+	return sdr
+
+sdr = get_sdr()
+e = ElectronTalker(lambda msg: err(msg))
 i = 0
+
+def check(n):
+	if n.real > 1 or n.real < -1:
+		err('bad real')
+	if n.imag > 1 or n.imag < -1:
+		err('bad imag')
+
 while i < 1000:
-	e.send_cmd('test', i)
-	time.sleep(0.1)
+	sampleComplex = sdr.read_samples() #(512)
+	sample = []
+	for n in sampleComplex:
+		sample.append([n.imag, n.real])
+		#check(n)
+	e.send_cmd('test', sample)
+	time.sleep(0.03)
 	i+=1
 
 ##############

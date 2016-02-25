@@ -1,5 +1,7 @@
 var child_process = require('child_process')
 var child = 0;
+//var spawn = child_process.spawn;
+var spawn = child_process.exec;
 
 function log(data, lvl) {
    console.log(data);
@@ -12,17 +14,16 @@ function send(data) {
 }
 
 function init(on_data) {
-   child = child_process.spawn(__dirname + '/py_stdcom.py')
+   child = spawn(__dirname + '/py_stdcom.py')
    //child.stdin.write(data);
    child.stderr.on('data', function(data) {
       log('js: got error from python:' + String(data));
    });
    child.stdout.on('data', function(data) {
-      //document.write(data);
       var msg = JSON.parse(data);
       if (msg['magic'] != 'gentoo_sicp_rms')
          log('error: bad python message');
-      on_data(JSON.stringify(msg));
+      on_data(msg);
    });
 }
 
